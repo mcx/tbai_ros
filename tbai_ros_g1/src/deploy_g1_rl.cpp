@@ -191,8 +191,9 @@ int main(int argc, char *argv[]) {
     auto pbhcPoseTimeStart = tbai::fromGlobalConfig<float>("g1_pbhc_horse_stance_pose/time_start");
     auto pbhcPoseTimeEnd = tbai::fromGlobalConfig<float>("g1_pbhc_horse_stance_pose/time_end");
     TBAI_LOG_INFO(logger, "Loading PBHC Horse Stance Pose: {}/{}", pbhcPoseHfRepo, pbhcPoseHfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1PBHCController>(
-        stateSubscriber, pbhcPoseModelPath, pbhcPoseMotionFile, pbhcPoseTimeStart, pbhcPoseTimeEnd, "G1PBHCHorseStancePose"));
+    controller.addController(std::make_unique<tbai::g1::RosG1PBHCController>(stateSubscriber, pbhcPoseModelPath,
+                                                                             pbhcPoseMotionFile, pbhcPoseTimeStart,
+                                                                             pbhcPoseTimeEnd, "G1PBHCHorseStancePose"));
 
     // Load G1 PBHC Horse Stance Pose v2 controller (model_119000)
     auto pbhcPose2HfRepo = tbai::fromGlobalConfig<std::string>("g1_pbhc_horse_stance_pose2/hf_repo");
@@ -204,15 +205,16 @@ int main(int argc, char *argv[]) {
     auto pbhcPose2TimeEnd = tbai::fromGlobalConfig<float>("g1_pbhc_horse_stance_pose2/time_end");
     TBAI_LOG_INFO(logger, "Loading PBHC Horse Stance Pose v2: {}/{}", pbhcPose2HfRepo, pbhcPose2HfModel);
     controller.addController(std::make_unique<tbai::g1::RosG1PBHCController>(
-        stateSubscriber, pbhcPose2ModelPath, pbhcPose2MotionFile, pbhcPose2TimeStart, pbhcPose2TimeEnd, "G1PBHCHorseStancePose2"));
+        stateSubscriber, pbhcPose2ModelPath, pbhcPose2MotionFile, pbhcPose2TimeStart, pbhcPose2TimeEnd,
+        "G1PBHCHorseStancePose2"));
 
     // Load G1 ASAP Locomotion controller (decoupled locomotion with stand height)
     auto asapHfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_locomotion/hf_repo");
     auto asapHfModel = tbai::fromGlobalConfig<std::string>("g1_asap_locomotion/hf_model");
     auto asapModelPath = tbai::downloadFromHuggingFace(asapHfRepo, asapHfModel);
     TBAI_LOG_INFO(logger, "Loading ASAP Locomotion: {}/{}", asapHfRepo, asapHfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPController>(
-        stateSubscriber, referenceVelocityPtr, asapModelPath, "G1ASAPLocomotion"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPController>(stateSubscriber, referenceVelocityPtr,
+                                                                             asapModelPath, "G1ASAPLocomotion"));
 
     // Load G1 ASAP Mimic controllers
     // CR7
@@ -221,8 +223,8 @@ int main(int argc, char *argv[]) {
     auto cr7ModelPath = tbai::downloadFromHuggingFace(cr7HfRepo, cr7HfModel);
     auto cr7MotionLength = tbai::fromGlobalConfig<float>("g1_asap_cr7/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP CR7: {}/{}", cr7HfRepo, cr7HfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, cr7ModelPath, cr7MotionLength, "G1ASAPCR7"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, cr7ModelPath,
+                                                                                  cr7MotionLength, "G1ASAPCR7"));
 
     // APT
     auto aptHfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_apt/hf_repo");
@@ -230,8 +232,8 @@ int main(int argc, char *argv[]) {
     auto aptModelPath = tbai::downloadFromHuggingFace(aptHfRepo, aptHfModel);
     auto aptMotionLength = tbai::fromGlobalConfig<float>("g1_asap_apt/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP APT: {}/{}", aptHfRepo, aptHfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, aptModelPath, aptMotionLength, "G1ASAPAPT"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, aptModelPath,
+                                                                                  aptMotionLength, "G1ASAPAPT"));
 
     // Jump Forward Level 1
     auto jf1HfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_jump_forward1/hf_repo");
@@ -266,8 +268,8 @@ int main(int argc, char *argv[]) {
     auto kick1ModelPath = tbai::downloadFromHuggingFace(kick1HfRepo, kick1HfModel);
     auto kick1MotionLength = tbai::fromGlobalConfig<float>("g1_asap_kick1/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP Kick 1: {}/{}", kick1HfRepo, kick1HfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, kick1ModelPath, kick1MotionLength, "G1ASAPKick1"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, kick1ModelPath,
+                                                                                  kick1MotionLength, "G1ASAPKick1"));
 
     // Kick Level 2
     auto kick2HfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_kick2/hf_repo");
@@ -275,8 +277,8 @@ int main(int argc, char *argv[]) {
     auto kick2ModelPath = tbai::downloadFromHuggingFace(kick2HfRepo, kick2HfModel);
     auto kick2MotionLength = tbai::fromGlobalConfig<float>("g1_asap_kick2/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP Kick 2: {}/{}", kick2HfRepo, kick2HfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, kick2ModelPath, kick2MotionLength, "G1ASAPKick2"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, kick2ModelPath,
+                                                                                  kick2MotionLength, "G1ASAPKick2"));
 
     // Kick Level 3
     auto kick3HfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_kick3/hf_repo");
@@ -284,8 +286,8 @@ int main(int argc, char *argv[]) {
     auto kick3ModelPath = tbai::downloadFromHuggingFace(kick3HfRepo, kick3HfModel);
     auto kick3MotionLength = tbai::fromGlobalConfig<float>("g1_asap_kick3/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP Kick 3: {}/{}", kick3HfRepo, kick3HfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, kick3ModelPath, kick3MotionLength, "G1ASAPKick3"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, kick3ModelPath,
+                                                                                  kick3MotionLength, "G1ASAPKick3"));
 
     // Kobe
     auto kobeHfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_kobe/hf_repo");
@@ -293,8 +295,8 @@ int main(int argc, char *argv[]) {
     auto kobeModelPath = tbai::downloadFromHuggingFace(kobeHfRepo, kobeHfModel);
     auto kobeMotionLength = tbai::fromGlobalConfig<float>("g1_asap_kobe/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP Kobe: {}/{}", kobeHfRepo, kobeHfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, kobeModelPath, kobeMotionLength, "G1ASAPKobe"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, kobeModelPath,
+                                                                                  kobeMotionLength, "G1ASAPKobe"));
 
     // LeBron Level 1
     auto lebron1HfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_lebron1/hf_repo");
@@ -320,8 +322,8 @@ int main(int argc, char *argv[]) {
     auto sj1ModelPath = tbai::downloadFromHuggingFace(sj1HfRepo, sj1HfModel);
     auto sj1MotionLength = tbai::fromGlobalConfig<float>("g1_asap_side_jump1/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP Side Jump 1: {}/{}", sj1HfRepo, sj1HfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, sj1ModelPath, sj1MotionLength, "G1ASAPSideJump1"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, sj1ModelPath,
+                                                                                  sj1MotionLength, "G1ASAPSideJump1"));
 
     // Side Jump Level 2
     auto sj2HfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_side_jump2/hf_repo");
@@ -329,8 +331,8 @@ int main(int argc, char *argv[]) {
     auto sj2ModelPath = tbai::downloadFromHuggingFace(sj2HfRepo, sj2HfModel);
     auto sj2MotionLength = tbai::fromGlobalConfig<float>("g1_asap_side_jump2/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP Side Jump 2: {}/{}", sj2HfRepo, sj2HfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, sj2ModelPath, sj2MotionLength, "G1ASAPSideJump2"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, sj2ModelPath,
+                                                                                  sj2MotionLength, "G1ASAPSideJump2"));
 
     // Side Jump Level 3
     auto sj3HfRepo = tbai::fromGlobalConfig<std::string>("g1_asap_side_jump3/hf_repo");
@@ -338,8 +340,8 @@ int main(int argc, char *argv[]) {
     auto sj3ModelPath = tbai::downloadFromHuggingFace(sj3HfRepo, sj3HfModel);
     auto sj3MotionLength = tbai::fromGlobalConfig<float>("g1_asap_side_jump3/motion_length");
     TBAI_LOG_INFO(logger, "Loading ASAP Side Jump 3: {}/{}", sj3HfRepo, sj3HfModel);
-    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(
-        stateSubscriber, sj3ModelPath, sj3MotionLength, "G1ASAPSideJump3"));
+    controller.addController(std::make_unique<tbai::g1::RosG1ASAPMimicController>(stateSubscriber, sj3ModelPath,
+                                                                                  sj3MotionLength, "G1ASAPSideJump3"));
 
     TBAI_LOG_INFO(logger, "Controllers initialized. Starting main loop...");
 
