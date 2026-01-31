@@ -155,6 +155,9 @@ class UIController:
     self.dtc_button = ttk.Button(row1_frame, text="DTC", command=lambda: self.publish_controller_change("DTC"))
     self.dtc_button.pack(side=tk.LEFT, padx=5)
 
+    self.wtw_button = ttk.Button(row1_frame, text="WTW", command=lambda: self.publish_controller_change("WTW"))
+    self.wtw_button.pack(side=tk.LEFT, padx=5)
+
     # Second row for additional buttons
     row2_frame = ttk.Frame(button_grid)
     row2_frame.pack(pady=(5, 0))

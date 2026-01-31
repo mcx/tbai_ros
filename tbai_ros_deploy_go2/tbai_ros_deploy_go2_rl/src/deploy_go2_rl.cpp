@@ -1,6 +1,7 @@
 // clang-format off
 #include <tbai_ros_bob/BobController.hpp>
 #include <tbai_ros_np3o/Np3oController.hpp>
+#include <tbai_ros_wtw/WtwController.hpp>
 // clang-format on
 
 #include <iostream>
@@ -126,6 +127,10 @@ int main(int argc, char *argv[]) {
     // Add Bob controller
     controller.addController(
         std::make_unique<tbai::rl::RosBobController>(urdfString, stateSubscriber, referenceVelocityPtr));
+
+    // Add WTW controller
+    controller.addController(
+        std::make_unique<tbai::wtw::RosWtwController>(urdfString, stateSubscriber, referenceVelocityPtr));
 
     // Start the resource monitor
     tbai::ResourceMonitor resourceMonitor(1.0 / 30.0, 1.0 / 10.0);

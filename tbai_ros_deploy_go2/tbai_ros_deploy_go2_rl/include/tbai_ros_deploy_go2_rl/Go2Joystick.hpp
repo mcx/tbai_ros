@@ -74,6 +74,13 @@ class Go2Joystick : public ::tbai::reference::ReferenceVelocityGenerator, public
         TBAI_LOG_WARN(logger_, "Y pressed: Changing controller to {}", msg.data);
     }
 
+    void onPressUp() override {
+        std_msgs::String msg;
+        msg.data = "WTW";
+        changeControllerPublisher_.publish(msg);
+        TBAI_LOG_WARN(logger_, "Up pressed: Changing controller to {}", msg.data);
+    }
+
    private:
     ros::Publisher changeControllerPublisher_;
     ros::NodeHandle nh_;

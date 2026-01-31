@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
     tbai_ros_core
     tbai_ros_np3o
     tbai_ros_bob
+    tbai_ros_wtw
     tbai_ros_static
     tbai_ros_reference
 )
@@ -19,7 +20,7 @@ find_package(spdlog REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES
-  CATKIN_DEPENDS tbai_ros_np3o tbai_ros_bob tbai_ros_static tbai_ros_reference
+  CATKIN_DEPENDS tbai_ros_np3o tbai_ros_bob tbai_ros_wtw tbai_ros_static tbai_ros_reference
 )
 
 

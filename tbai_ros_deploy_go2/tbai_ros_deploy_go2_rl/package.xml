@@ -11,6 +11,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>tbai_ros_np3o</depend>
   <depend>tbai_ros_bob</depend>
+  <depend>tbai_ros_wtw</depend>
   <depend>tbai_ros_safe</depend>
   <depend>tbai_ros_static</depend>
   <depend>tbai_ros_utils</depend>
