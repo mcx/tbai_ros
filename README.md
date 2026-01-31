@@ -59,7 +59,7 @@ $ just help
 [2. demos]
     anymal_b_mpc_gazebo            # ANYmal B blind MPC in Gazebo
     anymal_c_mpc_gazebo            # ANYmal C blind MPC in Gazebo
-    g1_mujoco                      # G1 humanoid in MuJoCo
+    g1_mujoco                      # G1 humanoid in MuJoCo (with countless controllers available)
     go2w_drive_mujoco              # Go2W (wheeled) drive in MuJoCo
     ....
 
