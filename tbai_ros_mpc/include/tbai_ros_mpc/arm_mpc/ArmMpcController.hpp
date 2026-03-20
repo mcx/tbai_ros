@@ -83,7 +83,7 @@ class ArmMpcController : public tbai::Controller {
 
     bool mrt_initialized_ = false;
 
-    scalar_t mpcRate_ = 30.0;  // Same as quadruped MPC
+    scalar_t mpcRate_ = 100.0;  // Initialized from mpcSettings().mpcDesiredFrequency_
     scalar_t timeSinceLastMpcUpdate_ = 1e5;
 
     bool isStable_ = true;
@@ -113,7 +113,7 @@ class ArmMpcController : public tbai::Controller {
     vector_t currentEEPosition_;
     vector_t currentEEOrientation_;
 
-    const bool wbcOnly_ = true;
+    const bool wbcOnly_ = false;
 
     // Helper to compute current EE pose
     void computeCurrentEEPose(const vector_t &jointPositions);

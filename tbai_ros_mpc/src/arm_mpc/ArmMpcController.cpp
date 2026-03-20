@@ -67,8 +67,8 @@ void ArmMpcController::initialize() {
         manipulatorInterfacePtr_->getInitializer());
     mpcPtr_->getSolverPtr()->setReferenceManager(manipulatorInterfacePtr_->getReferenceManagerPtr());
 
-    // Create MRT interface (takes reference to MPC) - same as quadruped
-    mrtPtr_ = std::make_unique<ocs2::MPC_MRT_Interface>(*mpcPtr_, true);  // threaded = true
+    // Create MRT interface (takes reference to MPC)
+    mrtPtr_ = std::make_unique<ocs2::MPC_MRT_Interface>(*mpcPtr_, true);
 
     // Initialize target EE pose
     targetEEPosition_ = vector_t::Zero(3);
@@ -97,6 +97,9 @@ void ArmMpcController::initialize() {
                                           targetEEOrientation_(2));  // w, x, y, z
     interactiveMarkerTargetPtr_ =
         std::make_unique<InteractiveMarkerTarget>(nh, "panda_link0", initialPosition, initialOrientation);
+
+    // Read MPC rate from configuration
+    mpcRate_ = manipulatorInterfacePtr_->mpcSettings().mpcDesiredFrequency_;
 
     tNow_ = 0.0;
 }
@@ -143,6 +146,7 @@ std::vector<MotorCommand> ArmMpcController::getMotorCommands(scalar_t currentTim
 
         const size_t nJoints = 7;
         desiredJointAcceleration = 0 * (dummyInput.tail(nJoints) - desiredInput.tail(nJoints)) / time_eps;
+
     }
 
     // Get motor commands from WBC
@@ -153,9 +157,8 @@ std::vector<MotorCommand> ArmMpcController::getMotorCommands(scalar_t currentTim
     // Update MPC observation and target periodically (same as quadruped)
     timeSinceLastMpcUpdate_ += dt;
     if (timeSinceLastMpcUpdate_ >= 1.0 / mpcRate_ && !wbcOnly_) {
-        setObservation();
-
-        // Update target trajectory (inline, no separate thread)
+        // Set target trajectory BEFORE observation, since setCurrentObservation
+        // triggers the MPC thread to solve — targets must be up-to-date first.
         vector_t targetState(7);
         targetState.head(3) = targetEEPosition_;
         targetState.tail(4) = targetEEOrientation_;
@@ -164,6 +167,8 @@ std::vector<MotorCommand> ArmMpcController::getMotorCommands(scalar_t currentTim
         ocs2::TargetTrajectories targetTrajectories({observation.time, observation.time + horizon},
                                                     {targetState, targetState}, {zeroInput, zeroInput});
         mrtPtr_->setTargetTrajectories(targetTrajectories);
+
+        setObservation();
     }
 
     return commands;
@@ -383,7 +388,7 @@ void ArmMpcController::resetMpc() {
     initTarget.head(3) = targetEEPosition_;
     initTarget.tail(4) = targetEEOrientation_;
     const vector_t zeroInput = vector_t::Zero(manipulatorInterfacePtr_->getArmModelInfo().inputDim);
-    const ocs2::TargetTrajectories initTargetTrajectories({0.0}, {initTarget}, {zeroInput});
+    const ocs2::TargetTrajectories initTargetTrajectories({initialObservation.time}, {initTarget}, {zeroInput});
     mrtPtr_->resetMpcNode(initTargetTrajectories);
 
     while (!mrtPtr_->initialPolicyReceived()) {

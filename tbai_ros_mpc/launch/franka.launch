@@ -71,7 +71,7 @@
             <arg name="paused" value="$(arg paused)"/>
         </include>
 
-        <!-- Launch Arm WBC node -->
+        <!-- Launch Arm MPC+WBC node -->
         <node if="$(arg debug)" name="arm_wbc" pkg="tbai_ros_mpc" type="simple_arm_wbc" output="screen"
               launch-prefix="gnome-terminal -- gdb -ex run --args"/>
         <node unless="$(arg debug)" name="arm_wbc" pkg="tbai_ros_mpc" type="simple_arm_wbc" output="screen"/>

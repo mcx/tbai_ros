@@ -41,7 +41,7 @@ ddp
   AbsTolODE                       1e-5
   RelTolODE                       1e-3
   maxNumStepsPerSecond            100000
-  timeStep                        1e-3
+  timeStep                        1e-2
   backwardPassIntegratorType      ODE45
 
   constraintPenaltyInitialValue   20.0
@@ -49,7 +49,7 @@ ddp
 
   preComputeRiccatiTerms          true
 
-  useFeedbackPolicy               false
+  useFeedbackPolicy               true
 
   strategy                        LINE_SEARCH
   lineSearch
@@ -76,7 +76,7 @@ rollout
 mpc
 {
   timeHorizon                     1.0   ; [s]
-  solutionTimeWindow              0.2   ; [s]
+  solutionTimeWindow              -1    ; [s] use full horizon
   coldStart                       false
 
   debugPrint                      false
@@ -174,7 +174,7 @@ inputCost
     ; input costs for the arm DOFs
     arm
     {
-      scaling 1e-2
+      scaling 1.0
 
       (0,0)  1.0  ; arm_1 velocity
       (1,1)  1.0  ; arm_2 velocity
@@ -190,13 +190,13 @@ inputCost
 endEffector
 {
   ; end effector quadratic penalty scaling
-  muPosition      50.0
+  muPosition      100.0
   muOrientation   25.0
 }
 
 finalEndEffector
 {
-  muPosition      50.0
+  muPosition      100.0
   muOrientation   25.0
 }
 
@@ -312,19 +312,19 @@ jointVelocityLimits
 hqpWbc
 {
   ; End-effector position tracking PD gains
-  eePositionKp        100.0
-  eePositionKd        20.0
+  eePositionKp        200.0
+  eePositionKd        30.0
 
   ; End-effector orientation tracking PD gains
-  eeOrientationKp     50.0
-  eeOrientationKd     10.0
+  eeOrientationKp     100.0
+  eeOrientationKd     15.0
 
   ; Joint torque limit [Nm] (default for Franka)
   torqueLimit         87.0
 
   ; Joint-level PD gains for motor commands
-  jointKp             1.0
-  jointKd             0.0
+  jointKp             50.0
+  jointKd             5.0
 }
 
 ; Whole Body Controller settings (SQP-based)

@@ -213,7 +213,7 @@ franka_arm_mpc_dummy:
 franka_arm_mpc_gazebo:
     #!/usr/bin/env bash
     source $(catkin locate)/devel/setup.bash
-    roslaunch tbai_ros_mpc franka.launch dummy:=false gui:=true
+    roslaunch tbai_ros_mpc franka.launch dummy:=false gui:=false
 
 # Go2W (wheeled) drive in MuJoCo
 [group("2. demos")]
