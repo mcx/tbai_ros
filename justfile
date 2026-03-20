@@ -129,7 +129,7 @@ go2_np3o_gazebo:
 go2_np3o_mujoco:
     #!/usr/bin/env bash
     source $(catkin locate)/devel/setup.bash
-    roslaunch tbai_ros_deploy_go2_rl deploy_go2_np3o.launch run_go2_joystick:=false run_virtual_joystick:=true unitree_channel:=1 network_interface:=lo mujoco_simulation:=true run_rviz:=true
+    roslaunch tbai_ros_deploy_go2_rl deploy_go2_np3o.launch run_go2_joystick:=false run_virtual_joystick:=true unitree_channel:=1 network_interface:=lo mujoco_simulation:=true run_rviz:=true publish_pointcloud:=false
 
 # Go2 NP3O with MPPI in Mujoco
 [group("2. demos")]

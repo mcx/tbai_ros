@@ -4,11 +4,16 @@
 #include <tbai_ros_wtw/WtwController.hpp>
 // clang-format on
 
+#include <atomic>
+#include <cstring>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 #include <ros/ros.h>
+#include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/PointField.h>
 #include <tbai_core/Env.hpp>
 #include <tbai_core/Logging.hpp>
 #include <tbai_core/ResourceMonitor.hpp>
@@ -25,10 +30,42 @@
 
 class Go2RobotInterfaceWithLidar : public tbai::Go2RobotInterface {
    public:
-    Go2RobotInterfaceWithLidar(const tbai::Go2RobotInterfaceArgs &args) : tbai::Go2RobotInterface(args) {
+    Go2RobotInterfaceWithLidar(const tbai::Go2RobotInterfaceArgs &args)
+        : tbai::Go2RobotInterface(args), publishMujocoSensors_(false) {
+        ros::NodeHandle nh;
+
         if (args.subscribeLidar()) {
-            ros::NodeHandle nh;
-            lidarPublisher = nh.advertise<sensor_msgs::PointCloud2>("unitree_lidar_points", 1);
+            lidarPublisher_ = nh.advertise<sensor_msgs::PointCloud2>("unitree_lidar_points", 1);
+        }
+
+        bool publishPointcloud = args.subscribePointcloud();
+        bool publishImage = args.enableVideo();
+
+        if (publishPointcloud) {
+            depthPointcloudPublisher_ = nh.advertise<sensor_msgs::PointCloud2>("camera/depth/points", 1);
+        }
+
+        if (publishImage) {
+            imagePublisher_ = nh.advertise<sensor_msgs::CompressedImage>("camera/color/image_raw/compressed", 1);
+        }
+
+        if (publishPointcloud || publishImage) {
+            publishMujocoSensors_ = true;
+            sensorPublishThread_ = std::thread([this, publishPointcloud, publishImage]() {
+                ros::Rate rate(5.0);
+                while (ros::ok() && publishMujocoSensors_) {
+                    if (publishPointcloud) publishDepthPointcloud();
+                    if (publishImage) publishColorImage();
+                    rate.sleep();
+                }
+            });
+        }
+    }
+
+    ~Go2RobotInterfaceWithLidar() {
+        publishMujocoSensors_ = false;
+        if (sensorPublishThread_.joinable()) {
+            sensorPublishThread_.join();
         }
     }
 
@@ -62,11 +99,70 @@ class Go2RobotInterfaceWithLidar : public tbai::Go2RobotInterface {
         pc2_msg.data = std::move(const_cast<std::vector<uint8_t> &>(msg->data()));
 
         // Publish the message
-        lidarPublisher.publish(pc2_msg);
+        lidarPublisher_.publish(pc2_msg);
     }
 
    private:
-    ros::Publisher lidarPublisher;
+    void publishDepthPointcloud() {
+        auto points = getLatestPointcloud();
+        if (points.empty()) return;
+
+        uint32_t num_points = points.size() / 3;
+
+        sensor_msgs::PointCloud2 pc2_msg;
+        pc2_msg.header.stamp = ros::Time::now();
+        pc2_msg.header.frame_id = "camera_link_optical";
+        pc2_msg.height = 1;
+        pc2_msg.width = num_points;
+
+        sensor_msgs::PointField field;
+        field.count = 1;
+        field.datatype = sensor_msgs::PointField::FLOAT32;
+
+        field.name = "x";
+        field.offset = 0;
+        pc2_msg.fields.push_back(field);
+        field.name = "y";
+        field.offset = 4;
+        pc2_msg.fields.push_back(field);
+        field.name = "z";
+        field.offset = 8;
+        pc2_msg.fields.push_back(field);
+
+        pc2_msg.is_bigendian = false;
+        pc2_msg.point_step = 12;
+        pc2_msg.row_step = pc2_msg.point_step * num_points;
+        pc2_msg.is_dense = true;
+
+        pc2_msg.data.resize(points.size() * sizeof(float));
+        std::memcpy(pc2_msg.data.data(), points.data(), pc2_msg.data.size());
+
+        depthPointcloudPublisher_.publish(pc2_msg);
+    }
+
+    void publishColorImage() {
+        try {
+            auto imageData = getLatestImage();
+            if (imageData.empty()) return;
+
+            sensor_msgs::CompressedImage img_msg;
+            img_msg.header.stamp = ros::Time::now();
+            img_msg.header.frame_id = "camera_link_optical";
+            img_msg.format = "png";
+            img_msg.data = std::move(imageData);
+
+            imagePublisher_.publish(img_msg);
+        } catch (const std::exception &e) {
+            // Video client may not be ready yet
+            ROS_WARN("Failed to publish color image: %s", e.what());
+        }
+    }
+
+    ros::Publisher lidarPublisher_;
+    ros::Publisher depthPointcloudPublisher_;
+    ros::Publisher imagePublisher_;
+    std::atomic<bool> publishMujocoSensors_;
+    std::thread sensorPublishThread_;
 };
 
 int main(int argc, char *argv[]) {
@@ -82,7 +178,9 @@ int main(int argc, char *argv[]) {
             tbai::Go2RobotInterfaceArgs()
                 .networkInterface(tbai::getEnvAs<std::string>("TBAI_GO2_NETWORK_INTERFACE", true, "eth0"))
                 .subscribeLidar(tbai::getEnvAs<bool>("TBAI_GO2_PUBLISH_LIDAR", true, false))
-                .unitreeChannel(tbai::getEnvAs<int>("TBAI_GO2_UNITREE_CHANNEL", true, 0))));
+                .unitreeChannel(tbai::getEnvAs<int>("TBAI_GO2_UNITREE_CHANNEL", true, 0))
+                .subscribePointcloud(tbai::getEnvAs<bool>("TBAI_GO2_SUBSCRIBE_POINTCLOUD", true, true))
+                .enableVideo(tbai::getEnvAs<bool>("TBAI_GO2_ENABLE_VIDEO", true, true))));
 
     std::shared_ptr<tbai::StateSubscriber> stateSubscriber = go2RobotInterface;
     std::shared_ptr<tbai::CommandPublisher> commandPublisher = go2RobotInterface;
