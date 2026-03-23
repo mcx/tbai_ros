@@ -201,6 +201,13 @@ spot_arm_mpc_dummy:
     source $(catkin locate)/devel/setup.bash
     roslaunch tbai_ros_mpc spot_arm_blind.launch dummy:=true
 
+# Spot with arm, MPC, Gazebo
+[group("2. demos")]
+spot_arm_mpc_gazebo:
+    #!/usr/bin/env bash
+    source $(catkin locate)/devel/setup.bash
+    roslaunch tbai_ros_mpc spot_arm_blind.launch dummy:=false gui:=true
+
 # Franka arm, MPC, dummy
 [group("2. demos")]
 franka_arm_mpc_dummy:
